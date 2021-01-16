@@ -1,15 +1,18 @@
-<html><head></head>
-<body>
-<h1>The Blog of Tcal-X</h1>
-  
-  Why "tcal-x" ?   Well, my work login "tcal" was already taken at GitHub.  
-  When I thought of "x" as an arbitrary extension, "tcal-x" stuck in my head
-  because it combined "tcal" (of course) and "kalx" -- the UC Berkeley student-run
-  radio station.   KALX had introduced me to the Smashing Pumpkins, Massive Attack,
-  and maybe Green Day (I can't remember I first heard Green Day on KALX, or live on
-  Lower Sproul Plaza....).
-  <br>
-  This is a placeholder until I get the real blog set up.
-  <br>
-</body>
-</html>
+---
+layout: default
+---
+
+<div class="posts">
+  {% for post in site.posts %}
+    <article class="post">
+
+      <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
+
+      <div class="entry">
+        {{ post.excerpt }}
+      </div>
+
+      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
+    </article>
+  {% endfor %}
+</div>
