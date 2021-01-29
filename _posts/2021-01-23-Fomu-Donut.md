@@ -5,11 +5,6 @@ title: Doing Donuts with Fomu
 
 I was Googling something related to Fomu, and hit this tweet from [@enjoy-digital](https://twitter.com/enjoy_digital?lang=en):
 
-Fomu tweet: https://twitter.com/enjoy_digital/status/1313788215409684481
-
-[![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
-
-<kbd><a href="https://twitter.com/enjoy_digital/status/1313788215409684481"><img src="/images/litex-fomu.png"></a></kbd>
 
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
@@ -28,9 +23,9 @@ I made a fresh LiteX checkout in a new virtual environment and tried the recipes
 
 So I went through the rest of Florent's twitter feed to see what else I might have missed.   I found this tasty tweet:
 
-Donut demo: https://twitter.com/enjoy_digital/status/1341095343816118272
 
 [![https://twitter.com/enjoy_digital/status/1341095343816118272](/images/litex-donut.png)](https://twitter.com/enjoy_digital/status/1341095343816118272)
+
 
 Hmm, I know how I would run that on an Arty board -- I would use `lxterm --kernel demo.bin /dev/ttyXXXX`.   The LiteX BIOS would attempt a serialboot by sending a magic ASCII string; then lxterm would recognize it and send the binary over the serial connection.
 
@@ -59,6 +54,54 @@ MEMORY {
         csr : ORIGIN = 0x82000000, LENGTH = 0x00010000
 }
 ```
+
+I will quickly summarize my misguided attempt to serialboot the binary into spiflash.   This seemed natural to me at first, since according to my understanding, `dfu-util -D` always wrote to the spiflash.  However, after poking around a bit after having no luck, I realized that spiflash was locked from the perspective of the RISC-V in my LiteX `user bitstream`.   For a few seconds, I thought "Oh, I just need to figure out how to unlock it"...until I remembered how easy it is to brick a Fomu if you accidentally corrupt the bootloader that's stored in spiflash.
+
+So, here's how I loaded demo.bin into sram:
+
+* Edit `demo/linker.ld` to put the sections in `sram` instead of `main_ram`.
+* Problem: the code then wants to be loaded at offset 0x0 in `sram`...but BIOS is using that as its working memory during the serialboot.  So the serialboot will be corrupted and/or hang
+* Solution: start at an offset 0x3000 by adding a line [`. += 0x3000;`] at the beginning of the first section, `.text`.
+
+After these two changes, the `.text` section looks like this:
+```
+        .text :
+        {
+                . += 0x3000;
+                _ftext = .;
+                *(.text .stub .text.* .gnu.linkonce.t.*)
+                _etext = .;
+        } > sram
+```
+The next three sections also get changed to "`> sram`".
+
+Then, you need to clean and remake **in** the demo directory:
+```
+% make BUILD_DIR=../build/fomu_pvt SOC_DIR=../../../../litex/litex/soc clean
+% make BUILD_DIR=../build/fomu_pvt SOC_DIR=../../../../litex/litex/soc
+```
+You might need to adjust the `SOC_DIR` setting to match your layout.
+
+Ok, to be safe, let's disassemble demo.elf to make sure we're at the intended offset:
+```
+% riscv64-unknown-elf-objdump -d demo.elf > demo.elf.dis
+% head -12 demo.elf.dis
+
+demo.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_ftext-0x3000>:
+        ...
+
+00003000 <_ftext>:
+    3000:       0b00006f                j       30b0 <crt_init>
+    3004:       00000013                nop
+```
+Ok, looks good!  Let's try to load it now.
+
+
 
 
 
