@@ -1,11 +1,15 @@
 ---
 layout: post
-title: Doing Donuts on Fomu
+title: Doing Donuts with Fomu
 ---
 
 I was Googling something related to Fomu, and hit this tweet from [@enjoy-digital](https://twitter.com/enjoy_digital?lang=en):
 
 Fomu tweet: https://twitter.com/enjoy_digital/status/1313788215409684481
+
+[![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
+
+<kbd><a href="https://twitter.com/enjoy_digital/status/1313788215409684481"><img src="/images/litex-fomu.png"></a></kbd>
 
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
@@ -18,7 +22,7 @@ build doesn't include a CPU, and so no BIOS and no prompt).
 So here was a recipe, a one-liner, to build a "normal" LiteX on Fomu --- two options in fact,
 one with the usual default VexRiscv core, and the other with the tiny serial SERV core.
 
-I made a fresh LiteX checkout in a new virtual environment and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using lxterm, and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green `litex>` prompt.   It worked!
+I made a fresh LiteX checkout in a new virtual environment and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using `lxterm /dev/ttyACM0`, and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green `litex>` prompt.   It worked!
 
 # Donuts
 
@@ -28,7 +32,7 @@ Donut demo: https://twitter.com/enjoy_digital/status/1341095343816118272
 
 [![https://twitter.com/enjoy_digital/status/1341095343816118272](/images/litex-donut.png)](https://twitter.com/enjoy_digital/status/1341095343816118272)
 
-Hmm, I know how I would run that on an Arty board -- I would use `lxterm --kernel demo.bin`.   The LiteX BIOS would attempt a serialboot by sending a magic ASCII string; then lxterm would recognize it and send the binary over the serial connection.
+Hmm, I know how I would run that on an Arty board -- I would use `lxterm --kernel demo.bin /dev/ttyXXXX`.   The LiteX BIOS would attempt a serialboot by sending a magic ASCII string; then lxterm would recognize it and send the binary over the serial connection.
 
 But would that work on Fomu?   I've run RISC-V applications on Fomu, but they were loaded using `dfu-util -D app.dfu`, relying on the magic of the Fomu bootloader.    Since I now have a `litex>` prompt on Fomu, serialboot should work....right?
 
