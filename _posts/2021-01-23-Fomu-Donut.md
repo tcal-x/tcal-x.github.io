@@ -102,6 +102,7 @@ Ok, looks good!  Let's try to load it now, at the 0x3000 offset that we chose:
 
 ```
 % lxterm  --kernel demo.bin --kernel-adr 0x00003000 /dev/ttyACM0
+```
 
 Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex_term.py`:
 ```diff
