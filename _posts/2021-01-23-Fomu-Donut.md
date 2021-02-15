@@ -5,9 +5,11 @@ title: Doing Donuts with Fomu
 
 I was Googling something related to Fomu, and hit this tweet from [@enjoy-digital](https://twitter.com/enjoy_digital):
 
+<hr>
 
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
+<hr>
 
 I must have missed that when it was first sent.  I'd been trying for a while to figure out
 how to get a normal LiteX BIOS prompt on Fomu.  I knew that LiteX was in there, from having poked around
@@ -22,9 +24,11 @@ I made a fresh LiteX checkout in a new virtual environment and tried the recipes
 
 So I went through the rest of Florent's twitter feed to see what else I might have missed.   I found this tasty tweet:
 
+<hr>
 
 [![https://twitter.com/enjoy_digital/status/1341095343816118272](/images/litex-donut.png)](https://twitter.com/enjoy_digital/status/1341095343816118272)
 
+<hr>
 
 Hmm, I know how I would run that on an Arty board -- I would use `lxterm --kernel demo.bin /dev/ttyXXXX`.   The LiteX BIOS would attempt a serialboot by sending a magic ASCII string; then lxterm would recognize it and send the binary over the serial connection.
 
@@ -104,7 +108,7 @@ Ok, looks good!  Let's try to load it now, at the 0x3000 offset that we chose:
 % lxterm  --kernel demo.bin --kernel-adr 0x00003000 /dev/ttyACM0
 ```
 
-Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex_term.py`:
+Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex/tools/litex_term.py`:
 ```diff
 -sfl_payload_length = 255
 -sfl_outstanding    = 128
@@ -115,7 +119,33 @@ Hmm, it hung.   After much investigation, I found that earlier versions of `lite
 
 See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information.
 
-With this fix, serialboot worked!  Let's watch the donut spin...get to the menu, and hit '??'.
+With this fix, serialboot worked!  
+```
+--============== Boot ==================--
+Booting from serial...
+Press Q or ESC to abort boot completely.
+sL5DdSMmkekro
+[LXTERM] Received firmware download request from the device.
+[LXTERM] Uploading ./demo.bin to 0x00003000 (9236 bytes)...
+[LXTERM] Upload complete (1.0KB/s).
+[LXTERM] Booting the device.
+[LXTERM] Done.
+Executing booted program at 0x00003000
+
+--============= Liftoff! ===============--
+
+LiteX minimal demo app built Feb 12 2021 19:12:26
+
+Available commands:
+help               - Show this command
+reboot             - Reboot CPU
+led                - Led demo
+donut              - Spinning Donut demo
+litex-demo-app>
+```
+
+
+Let's watch the donut spin...get to the menu, and hit '??'.
 
 Hmm, nothing's happening.  Actually, I typed something into chat that I kind of got the demo working, but the donut part wasn't working.   But when I came back to my `litex_term` window, there was a donut!  It was working...just really slowly.   I timed it, and measured one update evry XX seconds.
 
