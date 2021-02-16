@@ -10,6 +10,12 @@ I was Googling something related to Fomu, and hit this tweet from [@enjoy-digita
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
 <hr>
+images/litex-fomu.jpg
+[<img src="images/litex-fomu.jpg">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+<hr>
+/images/litex-fomu.jpg
+[<img src="/images/litex-fomu.jpg">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+<hr>
 
 I must have missed that when it was first sent.  I'd been trying for a while to figure out
 how to get a normal LiteX BIOS prompt on Fomu.  I knew that LiteX was in there, from having poked around
@@ -145,7 +151,7 @@ litex-demo-app>
 ```
 
 
-Let's watch the donut spin...get to the menu, and hit '??'.
+Let's watch the donut spin...get to the menu, and type 'donut\<ret\>'.
 
 Hmm, nothing's happening.  Actually, I typed something into chat that I kind of got the demo working, but the donut part wasn't working.   But when I came back to my `litex_term` window, there was a donut!  It was working...just really slowly.   I timed it, and measured one update evry XX seconds.
 
