@@ -11,13 +11,8 @@ I was Googling something related to Fomu, and hit this tweet from [@enjoy-digita
 
 <hr>
 <center>
-images/litex-fomu.png
-[<img src="images/litex-fomu.png" width="50%">](https://twitter.com/enjoy_digital/status/1313788215409684481)
-</center>
-<hr>
-<center>
-/images/litex-fomu.png
-[<img src="/images/litex-fomu.png" width="50%">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+/images/litex-fomu.png<br>
+[<img src="/images/litex-fomu.png" width="75%">](https://twitter.com/enjoy_digital/status/1313788215409684481)
 </center>
 <hr>
 
