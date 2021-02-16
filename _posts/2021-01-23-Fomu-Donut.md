@@ -10,11 +10,15 @@ I was Googling something related to Fomu, and hit this tweet from [@enjoy-digita
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
 <hr>
-images/litex-fomu.jpg
-[<img src="images/litex-fomu.jpg">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+<center>
+images/litex-fomu.png
+[<img src="images/litex-fomu.png" width="50%">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+</center>
 <hr>
-/images/litex-fomu.jpg
-[<img src="/images/litex-fomu.jpg">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+<center>
+/images/litex-fomu.png
+[<img src="/images/litex-fomu.png" width="50%">](https://twitter.com/enjoy_digital/status/1313788215409684481)
+</center>
 <hr>
 
 I must have missed that when it was first sent.  I'd been trying for a while to figure out
