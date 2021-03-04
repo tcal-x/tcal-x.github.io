@@ -3,7 +3,7 @@ layout: post
 title: Doing Donuts with Fomu
 ---
 
-I was Googling something related to Fomu, and hit this tweet from [@enjoy-digital](https://twitter.com/enjoy_digital):
+I was Googling something related to Fomu, and found this tweet from [@enjoy-digital](https://twitter.com/enjoy_digital):
 
 <hr>
 
@@ -47,7 +47,7 @@ chmod -x demo.elf
  OBJCOPY  demo.bin
 chmod -x demo.bin
 ```
-Ah, that is a warning that we cannot ignore.   The program's linker specification is looking for a memory region `main_ram` that is not defined by the LiteX build.   The Arty LiteX build, for example, maps the `main_ram` region to the Arty's DDR3 memory.   But let's look at what Fomu has:
+Ah, that is a warning that we cannot ignore.   The program's linker specification is looking for a memory region "`main_ram`" that is not defined by the LiteX build.   The Arty LiteX build, for example, maps the "`main_ram`" region to the Arty's DDR3 memory.   But let's look at what Fomu has:
 
 ```
 % cat build/fomu_pvt/software/include/generated/regions.ld
@@ -195,6 +195,7 @@ At first I thought it wasn't working, and started looking at something else.  Bu
 > * Of course, use icebreaker.py instead of fomu.py.
 > * You won't need to modify `litex_term.py` -- it work as-is with the iCEBreaker board.
 > * You can use `--cpu-variant=lite`, and you should see _many_ more donuts/minute.  (Note: the 'lite' variant doesn't quite fit on the Fomu, since on the Fomu, you need to use some of the fabric to implement USB gateware.)
+> * The device that you connect to will be something like "`/dev/ttyUSB0`", not "`/dev/ttyACM0`".
 >
 
 
