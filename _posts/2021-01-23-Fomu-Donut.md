@@ -18,7 +18,7 @@ how to get a normal LiteX BIOS prompt on Fomu.  I knew that LiteX was in there, 
 So here was a recipe, a one-liner, to build a "normal" LiteX on Fomu --- two options in fact,
 one with the usual default VexRiscv core, and the other with the tiny serial SERV core.
 
-I made a fresh LiteX checkout in a new virtual environment, changed directory to `litex-boards/litex_boards/targets`, and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using "`lxterm /dev/ttyACM0`", and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green "`litex>`" prompt.   It worked!  
+I made a fresh [LiteX checkout using `litex_setup.py`](https://github.com/enjoy-digital/litex#quick-start-guide) in a new virtual environment, changed directory to "`litex-boards/litex_boards/targets/`", and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using "`lxterm /dev/ttyACM0`", and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green "`litex>`" prompt.   It worked!  
 
 
 # Donuts
@@ -33,7 +33,7 @@ So I went through the rest of Florent's twitter feed to see what else I might ha
 
 Hmm, I know how I would run that on an Arty board -- I would use `lxterm --kernel demo.bin /dev/ttyXXXX`.   The LiteX BIOS would attempt a serialboot by sending a magic ASCII string; then lxterm would recognize it and send the binary over the serial connection.
 
-But would that work on Fomu?   I've run RISC-V applications on Fomu, but they were loaded using `dfu-util -D app.dfu`, relying on the magic of the Fomu bootloader.    Since I now have a `litex>` prompt on Fomu, serialboot should work....right?
+But would that work on Fomu?   I've run RISC-V applications on Fomu, but they were loaded using "`dfu-util -D app.dfu`", relying on the magic of the Fomu bootloader.    Since I now have a "`litex>`" prompt on Fomu, serialboot should work....right?
 
 Well, let's build the demo and find out:
 ```
