@@ -140,7 +140,7 @@ Ok, looks good!  Let's try to load it now, at the 0x3000 offset that we chose:
 ```
 
 Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex/tools/litex_term.py`:
-{% highlight diff %}
+```diff
 --- a/litex/tools/litex_term.py
 +++ b/litex/tools/litex_term.py
 @@ -202,8 +202,8 @@ sfl_prompt_ack = b"\x06"
@@ -154,7 +154,7 @@ Hmm, it hung.   After much investigation, I found that earlier versions of `lite
 
  # General commands
  sfl_cmd_abort       = b"\x00"
-{% endhighlight %}
+```
 
 See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information and status.
 
