@@ -139,14 +139,14 @@ Ok, looks good!  Let's try to load it now, at the 0x3000 offset that we chose:
 % lxterm  --kernel demo.bin --kernel-adr 0x00003000 /dev/ttyACM0
 ```
 
-Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex/tools/litex_term.py`:
+Hmm, it hung.   "`lxterm`" is a wrapper for  "`litex/litex/tools/litex_term.py`", so I started looking there.   After much investigation, I found that earlier commits of "`litex_term.py`" did work.  See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information.  There's a more direct fix than checking out an older version of "`litex_term.py`": you can instead make this edit in the current "`litex_term.py`":
 ```diff
 --- a/litex/tools/litex_term.py
 +++ b/litex/tools/litex_term.py
 @@ -202,8 +202,8 @@ sfl_prompt_ack = b"\x06"
  sfl_magic_req = b"sL5DdSMmkekro\n"
  sfl_magic_ack = b"z6IHG7cYDID6o\n"
-
+ 
 -sfl_payload_length = 255
 -sfl_outstanding    = 128
 +sfl_payload_length = 64
@@ -156,9 +156,7 @@ Hmm, it hung.   After much investigation, I found that earlier versions of `lite
  sfl_cmd_abort       = b"\x00"
 ```
 
-See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information and status.
-
-With this fix, serialboot worked!   _NOTE: if nothing happens after you connect, hit return a couple times.  If you get the `lite>` prompt, just type `serialboot` then return to force a serialboot attempt._
+With this fix, serialboot worked!   _NOTE: if nothing happens after you connect, hit return a couple times.  If you get the `litex>` prompt, just type "`serialboot<ret>`" to force a serialboot attempt._
 
 ```
 --============== Boot ==================--
@@ -187,7 +185,7 @@ litex-demo-app>
 
 Let's watch the donut spin...get to the menu, and type 'donut\<ret\>'.
 
-At first I thought it wasn't working, and started looking at something else.  But when I looked back, there was a donut!  It was working...just **really slowly**.   I timed it, and measured one update every ~20 seconds.   So we're at 3 donuts/minute.  I think we can do better...and in the next post, we will.
+At first I thought it wasn't working, and started looking at something else.  But when I looked back, there was a donut!  It _was_ working...just **really slowly**.   I timed it, and measured one update every ~20 seconds.   So we're at 3 donuts/minute.  I think we can do better...and in the next post, we will.
 
 
 >
