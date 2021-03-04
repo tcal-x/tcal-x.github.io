@@ -23,7 +23,7 @@ I made a fresh [LiteX checkout using `litex_setup.py`](https://github.com/enjoy-
 
 # Donuts
 
-So I went through the rest of Florent's twitter feed to see what else I might have missed.   I found this tweet:
+So I went through the rest of the Enjoy Digital twitter feed to see what else I might have missed.   I found this tweet:
 
 <hr>
 
