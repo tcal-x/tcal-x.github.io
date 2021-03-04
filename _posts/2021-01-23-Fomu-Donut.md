@@ -10,14 +10,10 @@ I was Googling something related to Fomu, and hit this tweet from [@enjoy-digita
 [![https://twitter.com/enjoy_digital/status/1313788215409684481](/images/litex-fomu.png)](https://twitter.com/enjoy_digital/status/1313788215409684481)
 
 <hr>
-<center>
-<a href="https://twitter.com/enjoy_digital/status/1313788215409684481"><img src="/images/litex-fomu.png" width="75%"></a>
-</center>
-<hr>
 
 I must have missed that when it was first sent.  I'd been trying for a while to figure out
 how to get a normal LiteX BIOS prompt on Fomu.  I knew that LiteX was in there, from having poked around
-[foboot](https://github.com/im-tomu/foboot), and also from having done the [LiteX portion](https://workshop.fomu.im/en/latest/migen.html) of the Fomu Workshop (spoiler: the example build doesn't include a CPU, and so no BIOS and no prompt).
+[foboot](https://github.com/im-tomu/foboot), and also from having done the [LiteX portion](https://workshop.fomu.im/en/latest/migen.html) of the Fomu Workshop (the example built there doesn't include a CPU, and so no BIOS and no prompt).
 
 So here was a recipe, a one-liner, to build a "normal" LiteX on Fomu --- two options in fact,
 one with the usual default VexRiscv core, and the other with the tiny serial SERV core.
@@ -26,7 +22,7 @@ I made a fresh LiteX checkout in a new virtual environment and tried the recipes
 
 # Donuts
 
-So I went through the rest of Florent's twitter feed to see what else I might have missed.   I found this tasty tweet:
+So I went through the rest of Florent's twitter feed to see what else I might have missed.   I found this tweet:
 
 <hr>
 
@@ -62,29 +58,59 @@ MEMORY {
 }
 ```
 
-I will quickly summarize my misguided attempt to serialboot the binary into spiflash.   This seemed natural to me at first, since according to my understanding, "`dfu-util -D`" always wrote to the spiflash.  However, after poking around a bit after having no luck, I realized that spiflash was locked from the perspective of the RISC-V in my LiteX "user bitstream".   For a few seconds, I thought "Oh, I just need to figure out how to unlock it"...until I remembered how easy it is to brick a Fomu if you accidentally corrupt the bootloader that's stored in spiflash.
+We have plenty of room in "`sram`" for the demo, so let's load it there.   Here's how to do it:
 
-So, here's how I loaded demo.bin into sram:
-
-* Edit "`demo/linker.ld`" to put the sections in "`sram`" instead of "`main_ram`".
-* Problem: the code then wants to be loaded at offset 0x0 in "`sram`"...but BIOS is using that as its working memory during the serialboot.  So the serialboot will be corrupted and/or hang
+* Edit "`demo/linker.ld`" to put the "`.text`", "`.rodata`", and "`.data`" sections in "`sram`" instead of "`main_ram`".
+* Problem: the code then wants to be loaded at offset 0x0 in "`sram`"...but BIOS is using that as its working memory during the serialboot.  Writing there while the serialboot code is using it
+will cause the serialboot will to hang, or corrupt the executable being loaded.
 * Solution: start at an offset 0x3000 by adding a dummy section before the `.text` section:
 
-After these two changes, the lines around the `.text` section looks like this:
-```
-        .dummy : { . += 0x3000; } > sram
+This is the diff of the changes to demo/linker.ld:
+```diff
+--- linker.ld-orig
++++ linker.ld
+@@ -7,12 +7,17 @@
 
+ SECTIONS
+ {
++        .dummy :
++        {
++                . += 0x3000;
++        } > sram
++
         .text :
         {
                 _ftext = .;
                 *(.text .stub .text.* .gnu.linkonce.t.*)
                 _etext = .;
-        } > sram
+-       } > main_ram
++       } > sram
+
+        .rodata :
+        {
+@@ -21,7 +26,7 @@
+                *(.rodata .rodata.* .gnu.linkonce.r.*)
+                *(.rodata1)
+                _erodata = .;
+-       } > main_ram
++       } > sram
+
+        .data :
+        {
+@@ -32,7 +37,7 @@
+                _gp = ALIGN(16);
+                *(.sdata .sdata.* .gnu.linkonce.s.*)
+                _edata = .;
+-       } > main_ram
++       } > sram
+
+        .bss :
+        {
 ```
-The next three sections also get changed to "`> sram`".
 
 Then, you need to clean and remake **in** the demo directory:
 ```
+% cd demo
 % make BUILD_DIR=../build/fomu_pvt clean
 % make BUILD_DIR=../build/fomu_pvt
 ```
@@ -114,14 +140,22 @@ Ok, looks good!  Let's try to load it now, at the 0x3000 offset that we chose:
 
 Hmm, it hung.   After much investigation, I found that earlier versions of `litex/tools/litex_term.py` did work!  But there's a more direct fix: make this change in `litex/tools/litex_term.py`:
 ```diff
+--- a/litex/tools/litex_term.py
++++ b/litex/tools/litex_term.py
+@@ -202,8 +202,8 @@ sfl_prompt_ack = b"\x06"
+ sfl_magic_req = b"sL5DdSMmkekro\n"
+ sfl_magic_ack = b"z6IHG7cYDID6o\n"
+
 -sfl_payload_length = 255
 -sfl_outstanding    = 128
 +sfl_payload_length = 64
 +sfl_outstanding    = 0
 
+ # General commands
+ sfl_cmd_abort       = b"\x00"
 ```
 
-See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information.
+See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information and status.
 
 With this fix, serialboot worked!  
 ```
@@ -154,54 +188,6 @@ Let's watch the donut spin...get to the menu, and type 'donut\<ret\>'.
 Hmm, nothing's happening.  Actually, I typed something into chat that I kind of got the demo working, but the donut part wasn't working.   But when I came back to my `litex_term` window, there was a donut!  It was working...just really slowly.   I timed it, and measured one update evry XX seconds.
 
 
-# Faster Donuts!
-
-Of course, I wanted to see if I could make the donut animation go faster.   Looking at the code, I saw a few multiplies, so I checked if the the VexRiscv build was using the hard multipliers.   Nope, it was performing each multiply iteratively in software.   It should speed things up quite a bit if we can use the DSP blocks on the ICE40.  
 
 
-To build a new version of VexRiscv, go to `pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/` and load the submodules.
-```
-git submodule update --init
-```
-Also, you'll need to install `sbt` to build a new VexRiscv. (reference?)
-
-
-The existing recipe in the Makefile for the `VexRiscv_Min` variant is:
-
-```make
-VexRiscv_Min.v: $(SRC)
-        sbt compile "runMain vexriscv.GenCoreDefault --iCacheSize 0 --dCacheSize 0 --mulDiv false --singleCycleShift false --singleCycleMulDiv false --bypass false --prediction none --outputFile VexRiscv_Min"
-```
-
-Let's make a new target, minimal EXCEPT for adding the DSP multipliers (`--mulDiv true` and `--singleCycleMulDiv true`), so we'll call it "MinMult":
-```make
-VexRiscv_MinMult.v: $(SRC)
-        sbt compile "runMain vexriscv.GenCoreDefault --iCacheSize 0 --dCacheSize 0 --mulDiv true --singleCycleShift false --singleCycleMulDiv true --bypass false --prediction none --outputFile VexRiscv_MinMult"
-```
-
-and now make it:
-```
-make VexRiscv_MinMult.v
-```
-
-We also need to make changes to LiteX (temporarily) to tell it about the new variant that we just created.  Find the file `litex/litex/soc/cores/cpu/vexriscv/core.py`.   Add the following lines:
-```
-TODO
-```
-
-Rebuild the gateware.
-
-Rebuild the demo with the variant=minmult
-
-In my run, with the single cycle mult, I only hit 44MHz, but the tool is conservative; it worked fine on my Fomu. The design used 97% of the logic cells, so it's a pretty tight fit.
-
-
-
-.... ALSO enables single cycle shift. That won't fit unless you do even more hacking.
-
-
-
-
-
-# Still Faster Donuts!
 
