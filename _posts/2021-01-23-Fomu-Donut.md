@@ -18,7 +18,8 @@ how to get a normal LiteX BIOS prompt on Fomu.  I knew that LiteX was in there, 
 So here was a recipe, a one-liner, to build a "normal" LiteX on Fomu --- two options in fact,
 one with the usual default VexRiscv core, and the other with the tiny serial SERV core.
 
-I made a fresh LiteX checkout in a new virtual environment and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using "`lxterm /dev/ttyACM0`", and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green "`litex>`" prompt.   It worked!
+I made a fresh LiteX checkout in a new virtual environment, changed directory to `litex-boards/litex_boards/targets`, and tried the recipes.   The build worked...the flash worked....now to connect!    I connected using "`lxterm /dev/ttyACM0`", and saw the start of the LiteX banner...but then a hang...oh wait, it was just a pause to calculate the CRC.   Then the rest of the banner, and the green "`litex>`" prompt.   It worked!  
+
 
 # Donuts
 
@@ -157,7 +158,8 @@ Hmm, it hung.   After much investigation, I found that earlier versions of `lite
 
 See [Litex Issue #73](https://github.com/enjoy-digital/litex/issues/773) for more information and status.
 
-With this fix, serialboot worked!  
+With this fix, serialboot worked!   _NOTE: if nothing happens after you connect, hit return a couple times.  If you get the `lite>` prompt, just type `serialboot` then return to force a serialboot attempt._
+
 ```
 --============== Boot ==================--
 Booting from serial...
@@ -185,9 +187,15 @@ litex-demo-app>
 
 Let's watch the donut spin...get to the menu, and type 'donut\<ret\>'.
 
-Hmm, nothing's happening.  Actually, I typed something into chat that I kind of got the demo working, but the donut part wasn't working.   But when I came back to my `litex_term` window, there was a donut!  It was working...just really slowly.   I timed it, and measured one update evry XX seconds.
+At first I thought it wasn't working, and started looking at something else.  But when I looked back, there was a donut!  It was working...just **really slowly**.   I timed it, and measured one update every ~20 seconds.   So we're at 3 donuts/minute.  I think we can do better...and in the next post, we will.
 
 
+>
+> Almost everything in this post also applies to iCEBreaker, with the following differences:
+> * Of course, use icebreaker.py instead of fomu.py.
+> * You won't need to modify `litex_term.py` -- it work as-is with the iCEBreaker board.
+> * You can use `--cpu-variant=lite`, and you should see _many_ more donuts/minute.  (Note: the 'lite' variant doesn't quite fit on the Fomu, since on the Fomu, you need to use some of the fabric to implement USB gateware.)
+>
 
 
 
